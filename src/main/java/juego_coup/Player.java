@@ -160,5 +160,30 @@ public class Player implements Serializable {
 
             return lost;
         }
+
+    }
+
+    public String getInfo() {
+        return this.isOut() ? String.format("Name: %s (Player #%d) is out", this.name, this.playerNum) : String.format("Name: %s (Player #%d), Tokens: %d, # of influences: %d", this.name, this.playerNum, this.tokens, this.getNumInfluence());
+    }
+
+    public int checkInfluence(String roleName) {
+        if (this.influence1 != null && !this.influence1.isRevealed() && this.influence1.getName().equals(roleName)) {
+            this.influence1.setRevealed(true);
+            return 0;
+        } else if (this.influence2 != null && !this.influence2.isRevealed() && this.influence2.getName().equals(roleName)) {
+            this.influence2.setRevealed(true);
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    public int checkBlockInfluence(String roleName) {
+        return this.checkInfluence(roleName);
+    }
+
+    public String toString() {
+        return this.name;
     }
 }
