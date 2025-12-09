@@ -106,4 +106,58 @@ public class CoupServer {
         }
 
     }
+
+    public synchronized Game getGame() {
+        return this.game;
+    }
+
+    public List<ClientHandler> getHandlers() {
+        return this.handlers;
+    }
+
+    public Object getPhaseLock() {
+        return this.phaseLock;
+    }
+
+    public void setCurrentAction(Command action) {
+        synchronized (this.phaseLock) {
+            this.currentAction = action;
+            this.phaseResponses.clear();
+        }
+    }
+
+    public Command getCurrentAction() {
+        synchronized (this.phaseLock) {
+            return this.currentAction;
+        }
+    }
+
+    public void clearCurrentAction() {
+        synchronized (this.phaseLock) {
+            this.currentAction = null;
+        }
+    }
+
+    public void clearPhaseResponses() {
+        synchronized (this.phaseLock) {
+            this.phaseResponses.clear();
+        }
+    }
+
+    public void registerPhaseResponse(Command response) {
+        synchronized (this.phaseLock) {
+            if (this.currentAction != null) {
+                this.phaseResponses.add(response);
+                this.phaseLock.notifyAll();
+                System.out.println("Respuesta de fase registrada. Notificando hilo de fase.");
+            }
+
+        }
+    }
+
+    public List<Command> getPhaseResponses() {
+        synchronized (this.phaseLock) {
+            return new ArrayList(this.phaseResponses);
+        }
+    }
 }
