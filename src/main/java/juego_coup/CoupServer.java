@@ -81,4 +81,29 @@ public class CoupServer {
         }
 
     }
+
+    private void initializeGame() {
+        List<Player> joinedPlayers = new ArrayList();
+        Iterator var2 = this.handlers.iterator();
+
+        while (var2.hasNext()) {
+            ClientHandler handler = (ClientHandler) var2.next();
+            joinedPlayers.add(handler.getPlayer());
+        }
+
+        this.game.setPlayersAtStart(joinedPlayers);
+        this.broadcast(new Command(1, "¡El juego ha comenzado! Distribuyendo influencias."));
+        this.broadcastGameState();
+        ((ClientHandler) this.handlers.get(this.game.getCurrentPlayerIndex())).notifyTurnStart();
+    }
+
+    public synchronized void broadcastGameState() {
+        Iterator var1 = this.handlers.iterator();
+
+        while (var1.hasNext()) {
+            ClientHandler handler = (ClientHandler) var1.next();
+            handler.sendGameState(this.game);
+        }
+
+    }
 }
