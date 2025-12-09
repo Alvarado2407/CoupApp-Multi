@@ -64,4 +64,21 @@ public class CoupServer {
             var7.printStackTrace();
         }
     }
+
+    public void sendToPlayer(int targetPlayerNum, Command command) {
+        if (targetPlayerNum >= 0 && targetPlayerNum < this.handlers.size()) {
+            ((ClientHandler) this.handlers.get(targetPlayerNum)).send(command);
+        }
+
+    }
+
+    public void broadcast(Command command) {
+        Iterator var2 = this.handlers.iterator();
+
+        while (var2.hasNext()) {
+            ClientHandler handler = (ClientHandler) var2.next();
+            handler.send(command);
+        }
+
+    }
 }
