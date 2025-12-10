@@ -26,4 +26,46 @@ public class CoupClient {
         CoupClient client = new CoupClient();
         client.start();
     }
+    
+    public void start() {
+    try {
+        this.socket = new Socket("127.0.0.1", 12345);
+        System.out.println("Conectado al servidor Coup en 127.0.0.1:12345");
+        this.out = new ObjectOutputStream(this.socket.getOutputStream());
+        this.in = new ObjectInputStream(this.socket.getInputStream());
+        this.listenToServer();
+    } catch (IOException var5) {
+        System.err.println("Error de conexión: Asegúrate de que CoupServer esté ejecutándose.");
+        System.err.println(var5.getMessage());
+    } finally {
+        this.closeConnection();
+    }
+
+}
+
+private void listenToServer() throws IOException {
+    while(true) {
+        try {
+            if (this.socket.isConnected()) {
+                Object obj = this.in.readObject();
+                if (obj instanceof Command) {
+                    this.processServerCommand((Command)obj);
+                }
+                continue;
+            }
+        } catch (ClassNotFoundException var2) {
+            System.err.println("Objeto recibido no reconocido: " + var2.getMessage());
+        }
+
+        return;
+    }
+}
+
+    private void processServerCommand(Command command) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private void closeConnection() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
