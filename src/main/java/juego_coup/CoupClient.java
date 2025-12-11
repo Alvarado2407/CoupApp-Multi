@@ -105,7 +105,22 @@ public class CoupClient {
     }
 
     private void closeConnection() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            if (this.socket != null) {
+                this.socket.close();
+            }
+
+            if (this.in != null) {
+                this.in.close();
+            }
+
+            if (this.out != null) {
+                this.out.close();
+            }
+        } catch (IOException var2) {
+            System.err.println("Error al cerrar la conexión: " + var2.getMessage());
+        }
+
     }
 
     private void updateGameState(Game receivedGame) {
@@ -203,11 +218,39 @@ public class CoupClient {
         this.sendToServer(response);
     }
 
-    private void sendToServer(Command actionCommand) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private void sendToServer(Command command) {
+        try {
+            this.out.writeObject(command);
+            this.out.flush();
+        } catch (IOException var3) {
+            System.err.println("Error enviando comando al servidor. ¿Desconectado?");
+        }
+
     }
 
-    private int getUserInput(String introduce_el_número_de_jugador_objetivo_, int i, int i0) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private int getUserInput(String prompt, int min, int max) {
+        int input = -1;
+
+        while (input < min || input > max) {
+            System.out.print(prompt);
+
+            try {
+                input = this.scanner.nextInt();
+                if (input < min || input > max) {
+                    System.out.println("Error: Elige un número entre " + min + " y " + max + ".");
+                }
+            } catch (InputMismatchException var9) {
+                System.out.println("Error: Por favor, introduce solo números.");
+                this.scanner.nextLine();
+                input = -1;
+            } finally {
+                if (input != -1) {
+                    this.scanner.nextLine();
+                }
+
+            }
+        }
+
+        return input;
     }
 }
