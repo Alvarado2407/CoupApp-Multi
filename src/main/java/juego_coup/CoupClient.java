@@ -146,14 +146,68 @@ public class CoupClient {
     }
 
     private void handleActionPrompt() {
+        System.out.println("\n>>> ¡ES TU TURNO DE ACTUAR! <<<");
+        System.out.println("Opciones de Acción:");
+        System.out.println(" 1. Ingreso (Income)          | 2. Ayuda Extranjera (Foreign Aid)");
+        System.out.println(" 3. Coup (7 fichas)           | 4. Duque (Tax)");
+        System.out.println(" 5. Asesino (Assassinate, 3) | 6. Capitán (Steal)");
+        System.out.println(" 7. Embajador (Exchange)     |");
+        int actionCode = this.getUserInput("Elige acción (1-7): ", 1, 7);
+        int targetPlayerNum = -1;
+        // Nota: Los códigos de acción 103, 105, 106 corresponden a Coup, Assassinate, Steal
+        if (actionCode == 103 || actionCode == 105 || actionCode == 106) {
+            System.out.println("Jugadores disponibles: " + this.localGame.getAvailablePlayersList(this.myPlayerNum));
+            targetPlayerNum = this.getUserInput("Introduce el número de jugador objetivo: ", 0, this.localGame.getPlayers().length - 1);
+            Player me = this.localGame.getPlayers()[this.myPlayerNum];
+            if (actionCode == 103 && me.getTokens() < 7) {
+                System.out.println("¡Advertencia! Necesitas 7 fichas para Coup.");
+            }
+
+            if (actionCode == 105 && me.getTokens() < 3) {
+                System.out.println("¡Advertencia! Necesitas 3 fichas para Asesinar.");
+            }
+        }
+
+        Command actionCommand = new Command(20, this.myPlayerNum, actionCode, targetPlayerNum);
+        this.sendToServer(actionCommand);
+    }
+
+    private void handleDecisionPrompt(Command prompt) {
+        String decisionType = prompt.getType() == 11 ? "DESAFIAR" : "BLOQUEAR";
+        // Nota: Asume que la clase ActionsPrinter existe
+        String actionName = ActionsPrinter.actionToString(prompt.getActionCode());
+        System.out.println("\n>>> Tienes un tiempo limitado para responder. <<<");
+        System.out.printf("Jugador %d realizó %s. ¿Deseas %s?\n", prompt.getSenderPlayerNum(), actionName, decisionType);
+        System.out.print("Introduce '1' para " + decisionType + " o '0' para PASAR: ");
+        int choice = this.getUserInput("", 0, 1);
+        Command response;
+        if (choice == 1) {
+            int responseType = prompt.getType() == 11 ? 21 : 22;
+            response = new Command(responseType, this.myPlayerNum, prompt.getActionCode(), prompt.getTargetPlayerNum());
+            System.out.println("Tu respuesta: " + decisionType);
+        } else {
+            response = new Command(23, this.myPlayerNum, 0, -1);
+            System.out.println("Tu respuesta: PASAR");
+        }
+
+        this.sendToServer(response);
+    }
+
+    private void handleInfluenceLossPrompt(Command prompt) {
+        Player me = this.localGame.getPlayers()[this.myPlayerNum];
+        System.out.println("\n*** ¡PERDISTE UNA INFLUENCIA! ***");
+        System.out.println("Elige qué carta revelar y perder:");
+        System.out.printf(" 1. %s\n 2. %s\n", me.getInfluence1(), me.getInfluence2());
+        int choice = this.getUserInput("Elige carta (1 o 2): ", 1, 2);
+        Command response = new Command(26, this.myPlayerNum, choice);
+        this.sendToServer(response);
+    }
+
+    private void sendToServer(Command actionCommand) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    private void handleDecisionPrompt(Command command) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    private void handleInfluenceLossPrompt(Command command) {
+    private int getUserInput(String introduce_el_número_de_jugador_objetivo_, int i, int i0) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
